@@ -21,4 +21,9 @@ class Project(info: ProjectInfo)
         <exclude org="log4j" name="log4j" />
       </dependency>
     </dependencies>
+  
+  override def managedStyle = ManagedStyle.Maven
+  def publishUrlSuffix = if (version.toString.endsWith("-SNAPSHOT")) "snapshots/" else "releases/"
+  val publishTo = "Scala Tools Nexus" at "http://nexus.scala-tools.org/content/repositories/" + publishUrlSuffix
+  Credentials(Path.userHome / ".ivy2" / ".scala_tools_credentials", log)
 }
