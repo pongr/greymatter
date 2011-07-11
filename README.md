@@ -6,6 +6,13 @@ Grey Matter provides a simple Mailet trait that converts each received email int
 
 Currently uses Akka 1.0 & Scala 2.8.1.  Future versions will use Akka 1.1.x & Scala 2.9.0-x.
 
+# sbt
+
+```
+val scalaToolsSnapshots = "scala-tools snapshots" at "http://scala-tools.org/repo-snapshots/"
+val greyMatter = "com.pongr" %% "greymatter" % "0.1-SNAPSHOT"
+```
+
 # Example
 
 Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to set up a James 3.0 mail server on EC2 that sends all incoming email through LogMailet to LogActor:
