@@ -4,6 +4,8 @@
 
 Grey Matter provides a simple Mailet trait that converts each received email into a message that is then sent to an [Akka](http://akka.io) actor, making concurrent email processing much easier. Clients simply extend the [GreyMatterMailet](https://github.com/pongr/greymatter/blob/master/src/main/scala/GreyMatterMailet.scala) trait, override a few methods, and then implement the rest of the mail processing app as Akka actors.
 
+Currently uses Akka 1.0 & Scala 2.8.1.  Future versions will use Akka 1.1.x & Scala 2.9.0-x.
+
 # Example
 
 Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to set up a James 3.0 mail server on EC2 that sends all incoming email through LogMailet to LogActor:
