@@ -21,5 +21,5 @@ Grey Matter ships with an example [LogMailet and LogActor](https://github.com/po
 
 # License
 
-Jetray is licensed under the [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0.txt).
+Grey Matter is licensed under the [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
