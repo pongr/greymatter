@@ -4,11 +4,20 @@
 
 Grey Matter provides a simple Mailet trait that converts each received email into a message that is then sent to an [Akka](http://akka.io) actor, making concurrent email processing much easier. Clients simply extend the [GreyMatterMailet](https://github.com/pongr/greymatter/blob/master/src/main/scala/GreyMatterMailet.scala) trait, override a few methods, and then implement the rest of the mail processing app as Akka actors.
 
+This simple example creates a mailet that wraps every Mail in a MyMessage, which will get sent to the MyActor:
+
+``` scala
+class ExampleMailet extends GreyMatterMailet {
+  def newActor = actorOf[MyActor].start
+  def messageFor(mail: Mail) = MyMessage(mail)
+}
+```
+
 Currently uses Akka 1.0 & Scala 2.8.1.  Future versions will use Akka 1.x & Scala 2.9.x. Grey Matter has only been tested with James 3.0, but may very well work with James 2.3.x.
 
 # sbt
 
-```
+``` scala
 val scalaToolsSnapshots = "scala-tools snapshots" at "http://scala-tools.org/repo-snapshots/"
 val greyMatter = "com.pongr" %% "greymatter" % "0.8-SNAPSHOT"
 ```
