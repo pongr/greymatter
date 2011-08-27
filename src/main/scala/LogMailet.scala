@@ -21,7 +21,7 @@ import akka.actor.Actor
 import akka.actor.Actor.actorOf
 import scala.collection.JavaConversions._
 
-/** Uses [[com.pongr.akkamailet.LogActor]] to receive all mail messages. */
+/** Uses [[com.pongr.greymatter.example.LogActor]] to receive all mail messages. */
 class LogMailet extends GreyMatterMailet {
   def newActor = actorOf[LogActor].start
 
@@ -35,7 +35,7 @@ class LogMailet extends GreyMatterMailet {
   override def init() { log("LogMailet starting up...") }
 }
 
-/** Simple message to send to [[com.pongr.akkamailet.LogActor]]. */
+/** Simple message to send to [[com.pongr.greymatter.example.LogActor]]. */
 case class LogMessage(name: String, sender: MailAddress, recipients: Iterable[MailAddress])
 
 /** Logs each received mail message. */

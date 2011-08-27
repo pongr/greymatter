@@ -14,7 +14,7 @@ class Project(info: ProjectInfo)
   
   val mailetBase = "org.apache.james" % "apache-mailet-base" % "1.1"
   
-  //James logs using log4j, so include slf4j-log4j12 but exclude log4j since James already has it
+  //James 3.0 logs using log4j, so include slf4j-log4j12 but exclude log4j since James already has it
   override def ivyXML =
     <dependencies>
       <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.0">
