@@ -18,8 +18,7 @@ Currently uses Akka 1.0 & Scala 2.8.1.  Future versions will use Akka 1.x & Scal
 # sbt
 
 ``` scala
-val scalaToolsSnapshots = "scala-tools snapshots" at "http://scala-tools.org/repo-snapshots/"
-val greyMatter = "com.pongr" %% "greymatter" % "0.8-SNAPSHOT"
+val greyMatter = "com.pongr" %% "greymatter" % "0.8"
 ```
 
 # Example
