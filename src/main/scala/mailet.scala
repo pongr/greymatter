@@ -23,10 +23,13 @@ import akka.actor._
 trait ActorMailet extends GenericMailet {
   val GhostParameter = "ghost"
   val DefaultGhost = "true"
+  /** Whether or not to set each mail's state to GHOST, so that it will not be processed any further by James. */
   val ghost: Boolean = try { getInitParameter(GhostParameter, DefaultGhost).toBoolean } catch { case _ => true }
 
+  /** The actor to send each mail to. Subclasses must provide this. */
   def actor: Option[ActorRef]
 
+  /** Sets mail state to GHOST and then sends the mail to the actor. */
   override def service(mail: Mail) {
     if (ghost) mail.setState(Mail.GHOST)
     actor foreach { _ ! mail }
@@ -49,7 +52,7 @@ trait ActorSystemMailet extends ActorMailet {
   /** Creates a new ActorSystem. */
   def newActorSystem() = ActorSystem(actorSystemName)
 
-  /** Creates a new actor using the specified actor system. */
+  /** Creates a new actor using the specified actor system. Subclasses must provide this. */
   def newActor(system: ActorSystem): ActorRef
 
   /** The ActorSystem used to create the Actor. */
