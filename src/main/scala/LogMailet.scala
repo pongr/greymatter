@@ -15,14 +15,13 @@
  */
 package com.pongr.greymatter.example
 
-import com.pongr.greymatter.GreyMatterMailet
+import com.pongr.greymatter._
 import org.apache.mailet.{ Mail, MailAddress }
-import akka.actor.Actor
-import akka.actor.Actor.actorOf
+import akka.actor._
 import scala.collection.JavaConversions._
 
 /** Uses [[com.pongr.greymatter.example.LogActor]] to receive all mail messages. */
-class LogMailet extends GreyMatterMailet {
+/*class LogMailet extends GreyMatterMailet {
   def newActor = actorOf[LogActor].start
 
   def messageFor(mail: Mail) = LogMessage(
@@ -33,16 +32,34 @@ class LogMailet extends GreyMatterMailet {
   override def ghost(mail: Mail) = true
 
   override def init() { log("LogMailet starting up...") }
+}*/
+
+/** Example of an ActorSystemMailet. Add it to James like this:
+  * <pre>
+  * <mailet matcher="all" class="com.pongr.greymatter.example.LogMailet" />
+  * </pre>
+  */
+class LogMailet extends ActorSystemMailet {
+  override def newActor(system: ActorSystem): ActorRef = {
+    val logActor = system.actorOf(Props[LogActor])
+    system.actorOf(Props(new MailToLogMessageActor(logActor)))
+  }
+}
+
+/** Example of the first actor in the pipeline, which converts a Mail object into some other domain object. */
+class MailToLogMessageActor(next: ActorRef) extends Actor {
+  def receive = {
+    case mail: Mail => next ! LogMessage(mail.getName, mail.getSender, mail.getRecipients map (_.asInstanceOf[MailAddress]))
+  }
 }
 
 /** Simple message to send to [[com.pongr.greymatter.example.LogActor]]. */
 case class LogMessage(name: String, sender: MailAddress, recipients: Iterable[MailAddress])
 
 /** Logs each received mail message. */
-class LogActor extends Actor {
+class LogActor extends Actor with ActorLogging {
   def receive = {
-    case LogMessage(name, sender, recipients) => 
-      log.info("Received mail " + name + " from " + sender + " to " + recipients)
-    case msg@_ => log.warn("Unknown message: " + msg)
+    case LogMessage(name, sender, recipients) => log.info("Received mail " + name + " from " + sender + " to " + recipients)
+    case msg => log.warning("Unknown message: " + msg)
   }
 }
