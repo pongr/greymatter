@@ -39,7 +39,9 @@ TODO describe mailetcontainer.xml config...
 
 # Example
 
-Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to [set up a James 3.0 mail server](http://james.apache.org/server/3/quick-start.html) on EC2 that sends all incoming email through LogMailet to LogActor:
+Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to [set up a James 3.0 mail server](http://james.apache.org/server/3/quick-start.html) on EC2 that sends all incoming email through LogMailet to LogActor.
+
+For James 3.0-beta3:
 
 ```
 #Run an Ubuntu 12.04 64-bit ec2 instance with port 25 open to 0.0.0.0/0 (for SMTP) and port 22 open to your IP (for SSH), for example:
@@ -61,17 +63,21 @@ sudo apt-get install -y libc6 libc6-dev libc6-i386 libc6-dev-i386 default-jre-he
 
 #Download James and set it up at /usr/local/james
 cd /usr/local
-sudo wget http://apache.mirrors.tds.net//james/server/james-server-container-spring-3.0-M2-bin.tar.gz
-sudo tar xvzf james-server-container-spring-3.0-M2-bin.tar.gz
-sudo rm james-server-container-spring-3.0-M2-bin.tar.gz
-sudo ln -s james-server-container-spring-3.0-M2 james
+sudo wget http://mirror.cogentco.com/pub/apache/james/apache-james/3.0beta3/apache-james-3.0-beta3-app.tar.gz
+sudo tar xvzf apache-james-3.0-beta3-app.tar.gz
+sudo rm apache-james-3.0-beta3-app.tar.gz
+sudo ln -s apache-james-3.0-beta3 james
 
-#In /usr/local/james/conf, set enabled="false" in imapserver.xml, pop3server.xml & remotemanager.xml
+#In /usr/local/james/conf, set enabled="false" in imapserver.xml & pop3server.xml
 
-#In /usr/local/james/conf/domainlist.xml:
- - <domainname>your.domain.com</domainname>
- - <autodetect>false</autodetect>
- - <autodetectIP>false</autodetectIP>
+#Replace /usr/local/james/conf/domainlist.xml with:
+<domainlist class="org.apache.james.domainlist.xml.XMLDomainList">
+  <domainnames>
+    <domainname>your.domain.com</domainname>
+  </domainnames>
+  <autodetect>false</autodetect>
+  <autodetectIP>false</autodetectIP>
+</domainlist>
  
 #In /usr/local/james/conf/smtpserver.xml:
  - Comment out: <!-- <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/> -->
@@ -80,11 +86,99 @@ sudo ln -s james-server-container-spring-3.0-M2 james
  - Add FILE to: log4j.rootLogger=DEBUG, FILE
  
 #In /usr/local/james/conf/mailetcontainer.xml:
- - Add to <mailetpackages>: <mailetpackage>com.pongr.greymatter.example</mailetpackage>
  - Comment-out all existing mailets in root processor
- - Add to root processor: <mailet match="All" class="LogMailet" />
+ - Add to root processor: <mailet match="All" class="com.pongr.greymatter.example.LogMailet" />
  
-#Put greymatter-assembly-0.8-SNAPSHOT.jar in /usr/local/james/conf/lib (use "sbt assembly" to build this, it will have all dependency classes in one fat jar)
+#Put greymatter-assembly-1.0.0.jar in /usr/local/james/conf/lib (use "sbt assembly" to build this, it will have all dependency classes in one fat jar)
+ 
+sudo /usr/local/james/bin/james start
+
+tail -f /usr/local/james/log/james-server.log
+
+Send email to user@your.domain.com and watch logging appear in james-server.log
+```
+
+For James 3.0-beta4:
+
+```
+#Download James and set it up at /usr/local/james
+cd /usr/local
+sudo wget http://mirror.cogentco.com/pub/apache/james/apache-james/3.0beta4/apache-james-3.0-beta4-app.tar.gz
+sudo tar xvzf apache-james-3.0-beta4-app.tar.gz
+sudo rm apache-james-3.0-beta4-app.tar.gz
+sudo ln -s apache-james-3.0-beta4 james
+
+#Create /usr/local/james/conf/domainlist.xml:
+<domainlist class="org.apache.james.domainlist.xml.XMLDomainList">
+  <domainnames>
+    <domainname>your.domain.com</domainname>
+  </domainnames>
+  <autodetect>false</autodetect>
+  <autodetectIP>false</autodetectIP>
+</domainlist>
+
+#Create conf/imapserver.conf
+<imapservers>
+  <imapserver enabled="false" />
+</imapservers>
+
+#In /usr/local/james/conf/log4j.properties:
+ - Add FILE to: log4j.rootLogger=DEBUG, FILE
+
+#Create conf/pop3server.conf
+<pop3servers>
+  <pop3server enabled="false" />
+</pop3servers>
+
+#Create conf/smtpserver.conf
+<smtpservers>
+  <smtpserver enabled="true">
+    <jmxName>smtpserver</jmxName>
+    <bind>0.0.0.0:25</bind>
+    <connectionBacklog>200</connectionBacklog>
+    <tls socketTLS="false" startTLS="false"></tls>
+    <connectiontimeout>360</connectiontimeout>
+    <connectionLimit>0</connectionLimit>
+    <connectionLimitPerIP>0</connectionLimitPerIP>
+    <authRequired>true</authRequired>
+    <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
+    <verifyIdentity>true</verifyIdentity>
+    <!--  This sets the maximum allowed message size (in kilobytes) for this -->
+    <!--  SMTP service. If unspecified, the value defaults to 0, which means no limit. -->
+    <maxmessagesize>0</maxmessagesize>
+    <addressBracketsEnforcement>true</addressBracketsEnforcement>
+    <handlerchain>
+      <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
+    </handlerchain>
+  </smtpserver>
+</smtpservers>
+
+#Create conf/mailetcontainer.conf
+<?xml version="1.0"?>
+<mailetcontainer enableJmx="true">
+  <context>
+    <postmaster>postmaster@localhost</postmaster>
+  </context>
+  <spooler>
+    <threads>20</threads>
+  </spooler>
+  <processors>
+    <processor state="root" enableJmx="true">
+      <mailet match="All" class="com.pongr.greymatter.example.LogMailet" />
+    </processor>
+    <!-- For some reason we have to include this processor and mailet, otherwise James won't start up... #donotremove -->
+    <processor state="error" enableJmx="true">
+      <mailet match="All" class="ToRepository">
+        <repositoryPath>file://var/mail/error/</repositoryPath>
+      </mailet>
+    </processor>
+  </processors>
+</mailetcontainer>
+
+#Add to conf/wrapper.conf: (via http://stackoverflow.com/questions/11999233/apache-james-gives-classnotfoundexception-com-mysql-jdbc-driver)
+wrapper.java.classpath.120=../conf/lib/*
+
+#Put greymatter-assembly-1.0.0.jar in /usr/local/james/conf/lib (use "sbt assembly" to build this, it will have all dependency classes in one fat jar)
  
 sudo /usr/local/james/bin/james start
 
