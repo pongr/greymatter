@@ -20,23 +20,9 @@ import org.apache.mailet.{ Mail, MailAddress }
 import akka.actor._
 import scala.collection.JavaConversions._
 
-/** Uses [[com.pongr.greymatter.example.LogActor]] to receive all mail messages. */
-/*class LogMailet extends GreyMatterMailet {
-  def newActor = actorOf[LogActor].start
-
-  def messageFor(mail: Mail) = LogMessage(
-    mail.getName,
-    mail.getSender,
-    mail.getRecipients map (_.asInstanceOf[MailAddress]))
-
-  override def ghost(mail: Mail) = true
-
-  override def init() { log("LogMailet starting up...") }
-}*/
-
 /** Example of an ActorSystemMailet. Add it to James like this:
   * <pre>
-  * <mailet matcher="all" class="com.pongr.greymatter.example.LogMailet" />
+  * <mailet matcher="All" class="com.pongr.greymatter.example.LogMailet" />
   * </pre>
   */
 class LogMailet extends ActorSystemMailet {
@@ -49,12 +35,12 @@ class LogMailet extends ActorSystemMailet {
 /** Example of the first actor in the pipeline, which converts a Mail object into some other domain object. */
 class MailToLogMessageActor(next: ActorRef) extends Actor {
   def receive = {
-    case mail: Mail => next ! LogMessage(mail.getName, mail.getSender, mail.getRecipients map (_.asInstanceOf[MailAddress]))
+    case mail: Mail => next ! LogMessage(mail.getName, mail.getSender, mail.getRecipients.map(_.asInstanceOf[MailAddress]).toSeq)
   }
 }
 
 /** Simple message to send to [[com.pongr.greymatter.example.LogActor]]. */
-case class LogMessage(name: String, sender: MailAddress, recipients: Iterable[MailAddress])
+case class LogMessage(name: String, sender: MailAddress, recipients: Seq[MailAddress])
 
 /** Logs each received mail message. */
 class LogActor extends Actor with ActorLogging {

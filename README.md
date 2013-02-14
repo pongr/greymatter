@@ -4,22 +4,21 @@
 
 Grey Matter provides a simple Mailet trait that converts each received email into a message that is then sent to an [Akka](http://akka.io) actor, making concurrent email processing much easier. Clients simply extend the [GreyMatterMailet](https://github.com/pongr/greymatter/blob/master/src/main/scala/GreyMatterMailet.scala) trait, override a few methods, and then implement the rest of the mail processing app as Akka actors.
 
-This simple example creates a mailet that wraps every Mail in a MyMessage, which will get sent to the MyActor:
+This simple example creates a mailet that sends every Mail to a MyActor:
 
 ``` scala
-class ExampleMailet extends GreyMatterMailet {
-  def newActor = actorOf[MyActor].start
-  def messageFor(mail: Mail) = MyMessage(mail)
+class ExampleMailet extends ActorSystemMailet {
+  override def newActor(system: ActorSystem): ActorRef = system.actorOf(Props[MyActor])
 }
 ```
 
-Currently uses Akka 1.0 & Scala 2.8.1.  Future versions will use Akka 1.x & Scala 2.9.x. Grey Matter has only been tested with James 3.0, but may very well work with James 2.3.x.
+Currently uses Akka 2.0.x & Scala 2.9.1.  Future versions will use Akka 2.1.x & Scala 2.10.x. Grey Matter has only been tested with James 3.0, but may very well work with James 2.3.x.
 
 # sbt
 
 ``` scala
 //Grey Matter is available at http://scala-tools.org/repo-releases/
-val greyMatter = "com.pongr" %% "greymatter" % "0.8"
+val greyMatter = "com.pongr" %% "greymatter" % "1.0"
 ```
 
 # Example
@@ -27,8 +26,8 @@ val greyMatter = "com.pongr" %% "greymatter" % "0.8"
 Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to [set up a James 3.0 mail server](http://james.apache.org/server/3/quick-start.html) on EC2 that sends all incoming email through LogMailet to LogActor:
 
 ```
-#Run an ec2 instance with port 25 open to 0.0.0.0/0 (for SMTP) and port 22 open to your IP (for SSH), for example:
-ec2run ami-1aad5273 -k your-key -t m1.large -g your-smtp-group -g your-ssh-group
+#Run an Ubuntu 12.04 64-bit ec2 instance with port 25 open to 0.0.0.0/0 (for SMTP) and port 22 open to your IP (for SSH), for example:
+ec2run ami-0145d268 -k your-key -t m1.large -g your-smtp-group -g your-ssh-group
 
 #Set up your DNS like this:
  - your.domain.com MX 10 mail.your.domain.com
@@ -81,4 +80,3 @@ Send email to user@your.domain.com and watch logging appear in james-server.log
 # License
 
 Grey Matter is licensed under the [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0.txt).
-

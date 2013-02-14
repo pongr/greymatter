@@ -19,28 +19,6 @@ import org.apache.mailet._
 import org.apache.mailet.base.GenericMailet
 import akka.actor._
 
-/*
-Cannot just pass an ActorRef to mailet constructor
-Mailets are defined declaratively in XML like this:
-
-<mailet match="All" class="com.pongr.fourarms.mailet.MeterMailet">
-  <param>value</param>
-</mailet>
-
-Specify FQCN of mailet class, James will instantiate it
-Inner params available to mailet
-
-In Akka 2.0.x to create an actor you need:
- - a Props object
- - an ActorRefFactory (somebody needs to create an ActorSystem somehow)
-Could create the ActorSystem in the mailet init() method since it's called once on setup
-And also create the ActorRef in the init() method
-
-service() needs to:
-  - possibly set ghost state of Mail
-  - send mail to ActorRef (don't do Mail => Any conversion anymore, ActorRef can do that)
-*/
-
 /** Sends each mail to an actor. It is entirely up to the subclass to provide the actor. */
 trait ActorMailet extends GenericMailet {
   val GhostParameter = "ghost"
@@ -55,6 +33,7 @@ trait ActorMailet extends GenericMailet {
   }
 }
 
+/** Creates a new actor system and a new actor in the init() method. It is entirely up to the subclass to create the actor. */
 trait ActorSystemMailet extends ActorMailet {
   val ActorSystemNameParameter = "actor-system-name"
   val DefaultActorSystemName = "james"
@@ -84,42 +63,3 @@ trait ActorSystemMailet extends ActorMailet {
     actor = Some(newActor(system.get))
   }
 }
-
-/**
- * Simple abstract mailet that converts each mail into a message that is sent
- * to an Akka actor. Subclasses must implement the newActor and messageFor methods.
- */
-/*trait GreyMatterMailet extends GenericMailet {
-  /** The actor that this mailet will send all mail messages to. */
-  lazy val actor = newActor
-
-  /** Creates the actor that this mailet will send all mail messages to. */
-  def newActor: ActorRef
-
-  /** Converts the specified mail into an immutable message to send to the actor. */
-  def messageFor(mail: Mail): Any
-
-  /**
-   * Returns true if the specified mail does not need to be processed further
-   * by any other matchers or mailets. If true then the mail's state will be set to GHOST.
-   *
-   *  This implementation always returns false. Subclasses may override to customize.
-   */
-  def ghost(mail: Mail): Boolean = false
-
-  /**
-   * Converts the specified mail into a message and sends the message to the actor.
-   * Sets the mail's state to GHOST if necessary.
-   */
-  override def service(mail: Mail) {
-    val msg = messageFor(mail)
-
-    if (ghost(mail)) {
-      mail.setState(Mail.GHOST)
-      log("Set state for mail " + mail.getName + " to GHOST")
-    }
-
-    log("Sending message " + msg + " for mail " + mail.getName + " to actor...")
-    actor ! msg
-  }
-}*/

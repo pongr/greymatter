@@ -1,3 +1,5 @@
+import AssemblyKeys._
+
 organization := "com.pongr"
 
 name := "greymatter"
@@ -11,6 +13,7 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.apache.james" % "apache-mailet-base" % "1.1", //there is a 2.5.0 in central repo now
   "com.typesafe.akka" % "akka-actor" % "2.0.5",
+  "com.typesafe.akka" % "akka-slf4j" % "2.0.5",
   "org.slf4j" % "slf4j-log4j12" % "1.6.0" //this is a 1.7.2 in central repo now
 )
 
@@ -19,6 +22,8 @@ ivyXML :=
   <dependencies>
     <exclude org="log4j" name="log4j" />
   </dependencies>
+
+assemblySettings
 
 seq(sbtrelease.Release.releaseSettings: _*)
 
