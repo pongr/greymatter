@@ -21,6 +21,22 @@ Currently uses Akka 2.0.x & Scala 2.9.1.  Future versions will use Akka 2.1.x & 
 val greyMatter = "com.pongr" %% "greymatter" % "1.0"
 ```
 
+# ActorMailet
+
+The most basic component that Grey Matter provides is the ActorMailet trait. It is simply a Mailet that sends each received Mail to some ActorRef. The implementing class must provide the ActorRef. 
+
+ActorMailet can also set the Mail's state to GHOST, so that it will not be further processed by James (which it does by default).
+
+While ActorMailet is as high-level as possible, it will usually be more convenient to base your mailets on ActorSystemMailet instead.
+
+# ActorSystemMailet
+
+Grey Matter also provides a more convenient ActorSystemMailet trait. It creates an ActorSystem on mailet initialization and then defers to a subclass to create an ActorRef to send all Mail to. The implementing class may create a chain of actors as complex as needed, as long as it provides a single ActorRef for all Mail to enter.
+
+# Integrating Mailets into James
+
+TODO describe mailetcontainer.xml config...
+
 # Example
 
 Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to [set up a James 3.0 mail server](http://james.apache.org/server/3/quick-start.html) on EC2 that sends all incoming email through LogMailet to LogActor:
