@@ -14,14 +14,14 @@ class ExampleMailet extends ActorSystemMailet {
 
 Currently uses Akka 2.0.x & Scala 2.9.1.  Future versions will use Akka 2.1.x & Scala 2.10.x. Grey Matter has only been tested with James 3.0, but may very well work with James 2.3.x.
 
-# sbt
+## sbt
 
 ``` scala
 //Grey Matter is available in central Maven repos
 val greyMatter = "com.pongr" %% "greymatter" % "1.0"
 ```
 
-# ActorMailet
+## ActorMailet
 
 The most basic component that Grey Matter provides is the ActorMailet trait. It is simply a Mailet that sends each received Mail to some ActorRef. The implementing class must provide the ActorRef. 
 
@@ -29,15 +29,15 @@ ActorMailet can also set the Mail's state to GHOST, so that it will not be furth
 
 While ActorMailet is as high-level as possible, it will usually be more convenient to base your mailets on ActorSystemMailet instead.
 
-# ActorSystemMailet
+## ActorSystemMailet
 
 Grey Matter also provides a more convenient ActorSystemMailet trait. It creates an ActorSystem on mailet initialization and then defers to a subclass to create an ActorRef to send all Mail to. The implementing class may create a chain of actors as complex as needed, as long as it provides a single ActorRef for all Mail to enter.
 
-# Integrating Mailets into James
+## Integrating Mailets into James
 
 TODO describe mailetcontainer.xml config...
 
-# Example
+## Example
 
 Grey Matter ships with an example [LogMailet and LogActor](https://github.com/pongr/greymatter/blob/master/src/main/scala/LogMailet.scala) (guess what they do...). Here are some simple commands to [set up a James 3.0 mail server](http://james.apache.org/server/3/quick-start.html) on EC2 that sends all incoming email through LogMailet to LogActor.
 
@@ -187,6 +187,6 @@ tail -f /usr/local/james/log/james-server.log
 Send email to user@your.domain.com and watch logging appear in james-server.log
 ```
 
-# License
+## License
 
 Grey Matter is licensed under the [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0.txt).
