@@ -62,7 +62,8 @@ trait ActorSystemMailet extends ActorMailet {
 
   /** Creates a new actor system, creates a new actor and saves them both. */
   override def init() {
-    //TODO handle case where system or actor already exists (should not happen and is invalid state)
+    if (system.isDefined) throw new IllegalStateException("Actor system already exists")
+    if (actor.isDefined) throw new IllegalStateException("Actor already exists")
     system = Some(newActorSystem())
     actor = Some(newActor(system.get))
   }
