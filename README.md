@@ -108,7 +108,7 @@ sudo tar xvzf apache-james-3.0-beta4-app.tar.gz
 sudo rm apache-james-3.0-beta4-app.tar.gz
 sudo ln -s apache-james-3.0-beta4 james
 
-#Create /usr/local/james/conf/domainlist.xml:
+#Create /usr/local/james/conf/domainlist.conf:
 <domainlist class="org.apache.james.domainlist.xml.XMLDomainList">
   <domainnames>
     <domainname>your.domain.com</domainname>
