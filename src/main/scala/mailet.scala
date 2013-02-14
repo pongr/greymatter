@@ -41,11 +41,11 @@ trait ActorSystemMailet extends ActorMailet {
   val ActorSystemNameParameter = "actor-system-name"
   val DefaultActorSystemName = "james"
   /** Gets the actor system name from mailet config. Do something like this:
-    * <pre>
+    * {{{
     * <mailet ...>
     *   <actor-system-name>foo</actor-system-name>
     * </mailet>
-    * </pre>
+    * }}}
     */
   def actorSystemName: String = getInitParameter(ActorSystemNameParameter, DefaultActorSystemName)
 
@@ -60,7 +60,7 @@ trait ActorSystemMailet extends ActorMailet {
   /** The Actor to send all mail to. */
   var actor: Option[ActorRef] = None
 
-  /** Creates a new ActorSystem and then creates a new Actor using the Props. */
+  /** Creates a new actor system, creates a new actor and saves them both. */
   override def init() {
     system = Some(newActorSystem())
     actor = Some(newActor(system.get))

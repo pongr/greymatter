@@ -21,9 +21,9 @@ import akka.actor._
 import scala.collection.JavaConversions._
 
 /** Example of an ActorSystemMailet. Add it to James like this:
-  * <pre>
+  * {{{
   * <mailet matcher="All" class="com.pongr.greymatter.example.LogMailet" />
-  * </pre>
+  * }}}
   */
 class LogMailet extends ActorSystemMailet {
   override def newActor(system: ActorSystem): ActorRef = {
