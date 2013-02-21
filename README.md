@@ -18,7 +18,7 @@ Currently uses Akka 2.0.x & Scala 2.9.1.  Future versions will use Akka 2.1.x & 
 
 ``` scala
 //Grey Matter is available in central Maven repos
-val greyMatter = "com.pongr" %% "greymatter" % "1.0"
+val greyMatter = "com.pongr" %% "greymatter" % "1.0.0"
 ```
 
 ## ActorMailet
