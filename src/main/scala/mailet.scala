@@ -29,10 +29,12 @@ trait ActorMailet extends GenericMailet {
   /** The actor to send each mail to. Subclasses must provide this. */
   def actor: Option[ActorRef]
 
+  def messageFor(mail: Mail): Any
+
   /** Sets mail state to GHOST and then sends the mail to the actor. */
   override def service(mail: Mail) {
     if (ghost) mail.setState(Mail.GHOST)
-    actor foreach { _ ! mail }
+    actor foreach { _ ! messageFor(mail) }
   }
 }
 
