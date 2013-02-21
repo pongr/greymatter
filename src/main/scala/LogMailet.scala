@@ -26,20 +26,9 @@ import scala.collection.JavaConversions._
   * }}}
   */
 class LogMailet extends ActorSystemMailet {
-  override def newActor(system: ActorSystem): ActorRef = {
-    //val logActor = system.actorOf(Props[LogActor])
-    //system.actorOf(Props(new MailToLogMessageActor(logActor)))
-    system.actorOf(Props[LogActor])
-  }
+  override def newActor(system: ActorSystem): ActorRef = system.actorOf(Props[LogActor])
 
   override def messageFor(mail: Mail): Any = LogMessage(mail.getName, mail.getSender, mail.getRecipients.map(_.asInstanceOf[MailAddress]).toSeq)
-}
-
-/** Example of the first actor in the pipeline, which converts a Mail object into some other domain object. */
-class MailToLogMessageActor(next: ActorRef) extends Actor {
-  def receive = {
-    case mail: Mail => next ! LogMessage(mail.getName, mail.getSender, mail.getRecipients.map(_.asInstanceOf[MailAddress]).toSeq)
-  }
 }
 
 /** Simple message to send to [[com.pongr.greymatter.example.LogActor]]. */

@@ -19,7 +19,7 @@ import org.apache.mailet._
 import org.apache.mailet.base.GenericMailet
 import akka.actor._
 
-/** Sends each mail to an actor. It is entirely up to the subclass to provide the actor. */
+/** Sends each mail to an actor. The subclass needs to provide the actor, as well as a function that converts a Mail object into a message for that actor. */
 trait ActorMailet extends GenericMailet {
   val GhostParameter = "ghost"
   val DefaultGhost = "true"
@@ -29,9 +29,15 @@ trait ActorMailet extends GenericMailet {
   /** The actor to send each mail to. Subclasses must provide this. */
   def actor: Option[ActorRef]
 
+  /** Converts the specified mail into the message that will be sent to the actor. It is advised to extract all required information out of this mail object
+    * and wrap it in a case class message, instead of sending the Mail, or MimeMessage, or any other raw mail objects to the actor. It appears that 
+    * accessing the underlying MimeMessage is problematic in threads other than James threads. If you try to call methods on the MimeMessage in an 
+    * actor, you are likely to get NullPointerExceptions. So extract what you need from the Mail & MimeMessage here, and encapulate those values in a 
+    * case class instance, and then have your actor handle those case class messages.
+    */
   def messageFor(mail: Mail): Any
 
-  /** Sets mail state to GHOST and then sends the mail to the actor. */
+  /** Sets mail state to GHOST, converts the mail into a message and then sends that message to the actor. */
   override def service(mail: Mail) {
     if (ghost) mail.setState(Mail.GHOST)
     actor foreach { _ ! messageFor(mail) }
