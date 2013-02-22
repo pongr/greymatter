@@ -2,17 +2,18 @@
 
 [Apache James](http://james.apache.org) is a Java-based mail server and provides a simple [Mailet API](http://james.apache.org/mailet/index.html) that you can use to write your own email-processing apps. Each Mailet subclass is instantiated once, while multiple mail spool threads can call it concurrently to process mail.
 
-Grey Matter provides a simple Mailet trait that converts each received email into a message that is then sent to an [Akka](http://akka.io) actor, making concurrent email processing much easier. Clients simply extend the [GreyMatterMailet](https://github.com/pongr/greymatter/blob/master/src/main/scala/GreyMatterMailet.scala) trait, override a few methods, and then implement the rest of the mail processing app as Akka actors.
+Grey Matter provides a simple Mailet trait that converts each received email into a message that is then sent to an [Akka](http://akka.io) actor, making concurrent email processing much easier. Clients simply extend [a trait](https://github.com/pongr/greymatter/blob/master/src/main/scala/mailet.scala), override a few methods, and then implement the rest of the mail processing app as Akka actors.
 
-This simple example creates a mailet that sends every Mail to a MyActor:
+This simple example creates a mailet that converts each received Mail into a MyMessage and then sends it to a MyActor:
 
 ``` scala
 class ExampleMailet extends ActorSystemMailet {
   override def newActor(system: ActorSystem): ActorRef = system.actorOf(Props[MyActor])
+  override def messageFor(mail: Mail): Any = MyMessage(mail) //assume apply() performs Mail => MyMessage
 }
 ```
 
-Currently uses Akka 2.0.x & Scala 2.9.1.  Future versions will use Akka 2.1.x & Scala 2.10.x. Grey Matter has only been tested with James 3.0, but may very well work with James 2.3.x.
+Currently uses Akka 2.0.5 & Scala 2.9.1.  Future versions will use Akka 2.1.x & Scala 2.10.x. Grey Matter has only been tested with James 3.0, but may very well work with James 2.3.x.
 
 ## sbt
 
@@ -23,7 +24,9 @@ val greyMatter = "com.pongr" %% "greymatter" % "1.0.0"
 
 ## ActorMailet
 
-The most basic component that Grey Matter provides is the ActorMailet trait. It is simply a Mailet that sends each received Mail to some ActorRef. The implementing class must provide the ActorRef. 
+The most basic component that Grey Matter provides is the ActorMailet trait. It is simply a Mailet that converts each received Mail into some other message object and sends that message to some ActorRef. The implementing class must provide the Mail-to-message conversion function and the ActorRef instance.
+
+While ActorMailet could just send the Mail object directly to an actor, in our experience we've run into problems when the Mail's MimeMessage object is used outside of the James threads (or potentially after it's finished going through the James pipeline). NullPointerExceptions tend to get thrown non-deterministically when trying to use the MimeMessage in an actor. Thus, it's best to have the Mailet pull everything it needs out of Mail & MimeMessage, wrap it in some other container object (such as a Scala case class instance) and then send that as the message to the actor.
 
 ActorMailet can also set the Mail's state to GHOST, so that it will not be further processed by James (which it does by default).
 
@@ -31,11 +34,15 @@ While ActorMailet is as high-level as possible, it will usually be more convenie
 
 ## ActorSystemMailet
 
-Grey Matter also provides a more convenient ActorSystemMailet trait. It creates an ActorSystem on mailet initialization and then defers to a subclass to create an ActorRef to send all Mail to. The implementing class may create a chain of actors as complex as needed, as long as it provides a single ActorRef for all Mail to enter.
+Grey Matter also provides a more convenient ActorSystemMailet trait. It creates an ActorSystem on mailet initialization and then defers to a subclass to create an ActorRef to send all mail messages to. The implementing class may create a chain of actors as complex as needed, as long as it provides a single ActorRef for all mail messages to enter.
 
 ## Integrating Mailets into James
 
 TODO describe mailetcontainer.xml config...
+
+## Config and Settings
+
+TODO describe how to include an Akka application.conf file in James conf dir, and use it in a Settings object.
 
 ## Example
 
